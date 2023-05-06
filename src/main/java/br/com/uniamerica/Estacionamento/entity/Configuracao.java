@@ -36,14 +36,14 @@ public class Configuracao extends AbstractEntity{
     private LocalTime tempoDeDesconto;
     @Getter @Setter
     @Column(name = "gerar_desconto")
-    private boolean gerarDesconto;
+    private Boolean gerarDesconto;
     @Getter @Setter
     @Column(name = "vagas_motos")
-    private int vagasMotos;
+    private Integer vagasMotos;
     @Getter @Setter
     @Column(name = "vagas_carro")
-    private int vagasCarro;
+    private Integer vagasCarro;
     @Getter @Setter
     @Column(name = "vagas_van")
-    private int vagasVan;
+    private Integer vagasVan;
 }

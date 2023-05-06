@@ -2,7 +2,6 @@ package br.com.uniamerica.Estacionamento.controller;
 
 
 import br.com.uniamerica.Estacionamento.entity.Condutor;
-import br.com.uniamerica.Estacionamento.entity.Movimentacao;
 import br.com.uniamerica.Estacionamento.repository.CondutorRepository;
 import br.com.uniamerica.Estacionamento.service.CondutorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +9,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequestMapping(value = "/api/condutor")
@@ -78,41 +75,11 @@ public class CondutorController {
 
     @DeleteMapping
     public ResponseEntity<?> deletar (@RequestParam ("id") final Long id) {
+        final Condutor condutorBanco = this.condutorRepository.findById(id).orElse(null);
 
-        final Condutor condutor = this.condutorRepository.findById(id).orElse(null);
+        this.condutorService.deletar(condutorBanco);
 
-        if (condutor == null){
-            return ResponseEntity.badRequest().body("Condutor nao encontrado");
-        }
-        List<Movimentacao> condutorAtivo = this.condutorRepository.findCondutorAtivoMovimentacao(condutor);
-        if (!condutorAtivo.isEmpty()){
-            if (condutor.getAtivo().equals(Boolean.FALSE)){
-                return ResponseEntity.ok("Já está inativo");
-            }
-            else {
-                try {
-                    condutor.setAtivo(Boolean.FALSE);
-                    this.condutorRepository.save(condutor);
-                    return ResponseEntity.ok("Condutor está inativo");
-                }
-                catch (DataIntegrityViolationException e){
-                    return ResponseEntity.internalServerError().body("Error: " + e.getCause().getCause().getMessage());
-                }
-                catch (RuntimeException e) {
-                    return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
-                }
-            }
-        }
-        try {
-            this.condutorRepository.delete(condutor);
-            return ResponseEntity.ok("Condutor deletado com Sucesso");
-        }
-        catch (DataIntegrityViolationException e){
-            return ResponseEntity.internalServerError().body("Error: " + e.getCause().getCause().getMessage());
-        }
-        catch (RuntimeException e) {
-            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
-        }
+        return ResponseEntity.ok("Condutor deletado com sucesso");
     }
 }
 

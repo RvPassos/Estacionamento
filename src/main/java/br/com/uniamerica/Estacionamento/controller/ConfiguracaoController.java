@@ -2,6 +2,7 @@ package br.com.uniamerica.Estacionamento.controller;
 
 import br.com.uniamerica.Estacionamento.entity.Configuracao;
 import br.com.uniamerica.Estacionamento.repository.ConfiguracaoRepository;
+import br.com.uniamerica.Estacionamento.service.ConfiguracaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,9 @@ public class ConfiguracaoController {
     @Autowired
     private ConfiguracaoRepository configuracaoRepository;
 
+    @Autowired
+    private ConfiguracaoService configuracaoService;
+
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
         final Configuracao configuracao = this.configuracaoRepository.findById(id).orElse(null);
@@ -27,12 +31,12 @@ public class ConfiguracaoController {
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody final Configuracao configuracao){
         try{
-            this.configuracaoRepository.save(configuracao);
+            this.configuracaoService.cadastrar(configuracao);
+            return ResponseEntity.ok("Registrado com Sucesso");
         }
         catch (DataIntegrityViolationException e){
             return ResponseEntity.internalServerError().body("Error: " + e.getCause().getCause().getMessage());
         }
-        return ResponseEntity.ok("Registrado com Sucesso");
     }
 
     @PutMapping
@@ -40,12 +44,7 @@ public class ConfiguracaoController {
                                     @RequestBody final Configuracao configuracao
     ){
         try{
-            final Configuracao configuracaoBanco = this.configuracaoRepository.findById(id).orElse(null);
-
-            if (configuracaoBanco == null || !configuracaoBanco.getId().equals(configuracao.getId())){
-                throw new RuntimeException("Nao foi possivel identificar o regisro no banco");
-            }
-            this.configuracaoRepository.save(configuracao);
+            this.configuracaoService.editar(configuracao, id);
             return ResponseEntity.ok("Registro atualizado com sucesso");
         }
         catch (DataIntegrityViolationException e){

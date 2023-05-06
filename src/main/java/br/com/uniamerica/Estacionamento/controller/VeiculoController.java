@@ -1,16 +1,14 @@
 package br.com.uniamerica.Estacionamento.controller;
 
 
-import br.com.uniamerica.Estacionamento.entity.Movimentacao;
 import br.com.uniamerica.Estacionamento.entity.Veiculo;
 import br.com.uniamerica.Estacionamento.repository.VeiculoRepository;
+import br.com.uniamerica.Estacionamento.service.VeiculoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequestMapping(value = "/api/veiculo")
@@ -18,6 +16,9 @@ public class VeiculoController {
 
     @Autowired
     private VeiculoRepository veiculoRepository;
+
+    @Autowired
+    private VeiculoService veiculoService;
 
     @GetMapping
     public ResponseEntity<?> getById(@RequestParam("id") final Long id){
@@ -40,13 +41,12 @@ public class VeiculoController {
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody final Veiculo veiculo){
         try {
-            this.veiculoRepository.save(veiculo);
+            this.veiculoService.cadastrar(veiculo);
+            return ResponseEntity.ok("Registrado com Sucesso");
         }
         catch (DataIntegrityViolationException e) {
             return ResponseEntity.internalServerError().body("Error: " + e.getCause().getCause().getMessage());
         }
-        this.veiculoRepository.save(veiculo);
-        return ResponseEntity.ok("Registrado com Sucesso");
     }
 
     @PutMapping
@@ -54,13 +54,8 @@ public class VeiculoController {
                                     @RequestBody final Veiculo veiculo
     ){
         try{
-            final Veiculo veiculoBanco = this.veiculoRepository.findById(id).orElse(null);
-
-            if (veiculoBanco == null || !veiculoBanco.getId().equals(veiculo.getId())){
-                throw new RuntimeException("Não foi possivel idenficar o registro no banco");
-            }
-            this.veiculoRepository.save(veiculo);
-            return ResponseEntity.ok("Registro atualizacao com sucesso");
+            this.veiculoService.editar(veiculo, id);
+            return ResponseEntity.ok("Registro atualizado com sucesso");
         }
         catch (DataIntegrityViolationException e){
             return ResponseEntity.internalServerError().body("Error: " + e.getCause().getCause().getMessage());
@@ -72,41 +67,11 @@ public class VeiculoController {
 
     @DeleteMapping
     public ResponseEntity<?> deletar (@RequestParam ("id") final Long id) {
+        final Veiculo veiculoBanco = this.veiculoRepository.findById(id).orElse(null);
 
-        final Veiculo veiculo = this.veiculoRepository.findById(id).orElse(null);
+        this.veiculoService.deletar(veiculoBanco);
 
-        if (veiculo == null){
-            return ResponseEntity.badRequest().body("Condutor nao encontrado");
-        }
-        List<Movimentacao> condutorAtivo = this.veiculoRepository.findVeiculoAtivoMovimentacao(veiculo);
-        if (!condutorAtivo.isEmpty()){
-            if (veiculo.getAtivo().equals(Boolean.FALSE)){
-                return ResponseEntity.ok("Já está inativo");
-            }
-            else {
-                try {
-                    veiculo.setAtivo(Boolean.FALSE);
-                    this.veiculoRepository.save(veiculo);
-                    return ResponseEntity.ok("Condutor está inativo");
-                }
-                catch (DataIntegrityViolationException e){
-                    return ResponseEntity.internalServerError().body("Error: " + e.getCause().getCause().getMessage());
-                }
-                catch (RuntimeException e) {
-                    return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
-                }
-            }
-        }
-        try {
-            this.veiculoRepository.delete(veiculo);
-            return ResponseEntity.ok("Condutor deletado com Sucesso");
-        }
-        catch (DataIntegrityViolationException e){
-            return ResponseEntity.internalServerError().body("Error: " + e.getCause().getCause().getMessage());
-        }
-        catch (RuntimeException e) {
-            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
-        }
+        return ResponseEntity.ok("Veiculo deletado com sucesso");
     }
 
 }

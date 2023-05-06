@@ -1,15 +1,13 @@
 package br.com.uniamerica.Estacionamento.controller;
 
 import br.com.uniamerica.Estacionamento.entity.Modelo;
-import br.com.uniamerica.Estacionamento.entity.Veiculo;
 import br.com.uniamerica.Estacionamento.repository.ModeloRepository;
+import br.com.uniamerica.Estacionamento.service.ModeloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequestMapping(value = "/api/modelo")
@@ -17,6 +15,9 @@ public class ModeloController {
 
     @Autowired
     private ModeloRepository modeloRepository;
+
+    @Autowired
+    private ModeloService modeloService;
 
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
@@ -41,13 +42,15 @@ public class ModeloController {
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody final Modelo modelo){
         try{
-            this.modeloRepository.save(modelo);
+            this.modeloService.cadastrar(modelo);
+            return ResponseEntity.ok("Registro Cadastrado com Sucesso");
         }
         catch (DataIntegrityViolationException e){
             return ResponseEntity.internalServerError().body("Error: " + e.getCause().getCause().getMessage());
         }
-        this.modeloRepository.save(modelo);
-        return ResponseEntity.ok("Registro Cadastrado com Sucesso");
+        catch (RuntimeException e){
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
 
@@ -56,13 +59,7 @@ public class ModeloController {
                                     @RequestBody final Modelo modelo
     ){
         try {
-            final Modelo modeloBanco = this.modeloRepository.findById(id).orElse(null);
-
-            if (modeloBanco == null || !modeloBanco.getId().equals(modelo.getId())) {
-                throw new RuntimeException("Não foi possivel identificar o registro informado.");
-            }
-
-            this.modeloRepository.save(modelo);
+            this.modeloService.editar(modelo, id);
             return ResponseEntity.ok("Registro Atualizado com Sucesso");
         }
         catch (DataIntegrityViolationException e){
@@ -75,41 +72,11 @@ public class ModeloController {
 
     @DeleteMapping
     public ResponseEntity<?> deletar (@RequestParam ("id") final Long id){
+        final Modelo modeloBanco = this.modeloRepository.findById(id).orElse(null);
 
-        final Modelo modelo = this.modeloRepository.findById(id).orElse(null);
+        this.modeloService.deletar(modeloBanco);
 
-        if (modelo == null){
-            return ResponseEntity.badRequest().body("Condutor não encontrado");
-        }
-        List<Veiculo> marcaAtivo = this.modeloRepository.findModeloAtivoVeiculo(modelo);
-        if (!marcaAtivo.isEmpty()){
-            if (modelo.getAtivo().equals(Boolean.FALSE)){
-                return ResponseEntity.ok("Já está inativo");
-            }
-            else{
-                try {
-                    modelo.setAtivo(Boolean.FALSE);
-                    this.modeloRepository.save(modelo);
-                    return ResponseEntity.ok("Modelo esta inativo");
-                }
-                catch (DataIntegrityViolationException e) {
-                    return ResponseEntity.internalServerError().body("Error: " + e.getCause().getCause().getMessage());
-                }
-                catch (RuntimeException e){
-                    return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
-                }
-            }
-        }
-        try {
-            this.modeloRepository.delete(modelo);
-            return ResponseEntity.ok("Marca deletada");
-        }
-        catch (DataIntegrityViolationException e) {
-            return ResponseEntity.internalServerError().body("Error: " + e.getCause().getCause().getMessage());
-        }
-        catch (RuntimeException e){
-            return ResponseEntity.internalServerError().body("Error: " + e.getCause().getCause().getMessage());
-        }
+        return ResponseEntity.ok("Modelo deletado com sucesso");
     }
 }
 

@@ -11,15 +11,25 @@ import java.util.List;
 
 @Repository
 public interface CondutorRepository extends JpaRepository<Condutor, Long>{
-    @Query("SELECT m FROM Movimentacao m WHERE m.condutorId = :condutor AND m.ativo = true")
+    @Query("FROM Movimentacao WHERE condutorId = :condutor AND ativo = true")
     List<Movimentacao> findCondutorAtivoMovimentacao(@Param("condutor") final Condutor condutor);
 
-    @Query("SELECT c FROM Condutor c WHERE c.ativo = true ")
+    @Query("FROM Condutor WHERE ativo = true ")
     List<Condutor> findAtivo();
 
-    @Query("SELECT c FROM Condutor c WHERE c.id = :id")
+    @Query("FROM Condutor WHERE id = :id")
     List<Condutor> findIdExistente(@Param("id")final Long id);
 
-    @Query("SELECT c.cpf FROM Condutor c WHERE c.cpf = :cpf")
+    @Query("FROM Condutor WHERE cpf = :cpf")
     List<Condutor> getByCpf (@Param("cpf") final String cpf);
+
+    @Query("FROM Condutor WHERE telefone = :telefone")
+    List<Condutor> getByTelefone (@Param("telefone") final String telefone);
+
+    @Query("FROM Condutor WHERE cpf = :cpf AND id != :id")
+    List<Condutor> getByCpfPut (@Param("cpf") final String cpf, @Param("id") final Long id);
+
+    @Query("FROM Condutor WHERE telefone = :telefone AND id != :id")
+    List<Condutor> getByTelefonePut (@Param("telefone") final String telefone, @Param("id") final Long id);
+
 }

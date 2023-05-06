@@ -11,10 +11,16 @@ import java.util.List;
 
 @Repository
 public interface MarcaRepository extends JpaRepository<Marca, Long> {
-    @Query("SELECT ma FROM Marca ma WHERE ma.ativo = true")
+    @Query("FROM Marca WHERE ativo = true")
     List<Marca> findByAtivo();
 
-    @Query("SELECT mo FROM Modelo mo WHERE mo.marcaId = :marca AND mo.ativo = true")
+    @Query("FROM Modelo WHERE marcaId = :marca AND ativo = true")
     List<Modelo> findMarcaAtivoModelo(@Param("marca") final Marca marca);
+
+    @Query("FROM Modelo WHERE nome = :nome")
+    List<Marca> findByNome(@Param("nome") final String nome);
+
+    @Query("FROM Modelo WHERE nome = :nome AND id != :id")
+    List<Marca> findByNomePut(@Param("nome") final String nome, @Param("id") final Long id);
 
 }

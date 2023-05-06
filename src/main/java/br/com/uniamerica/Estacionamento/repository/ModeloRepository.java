@@ -11,9 +11,15 @@ import java.util.List;
 
 @Repository
 public interface ModeloRepository extends JpaRepository<Modelo, Long> {
-    @Query("SELECT mo FROM Modelo mo WHERE mo.ativo = true")
+    @Query("FROM Modelo WHERE ativo = true")
     List<Modelo> findByAtivo();
 
-    @Query("SELECT v FROM Veiculo v WHERE v.modeloId = :modelo AND v.ativo = true")
+    @Query("FROM Veiculo WHERE modeloId = :modelo AND ativo = true")
     List<Veiculo> findModeloAtivoVeiculo(@Param("modelo") final Modelo modelo);
+
+    @Query("FROM Modelo WHERE nome = :nome")
+    List<Modelo> findByNome(@Param("nome") final String nome);
+
+    @Query("FROM Modelo WHERE nome = :nome AND id != :id")
+    List<Modelo> findByNomePut(@Param("nome") final String nome, @Param("id") final Long id);
 }
