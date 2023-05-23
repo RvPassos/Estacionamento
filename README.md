@@ -1,7 +1,7 @@
 <h1>Estacionamento</h1>
 
 ### Topicos
-- [Descricao do projeto](#descricao-do-projeto)
+- [Descrição do projeto](#descrição-do-projeto)
 
 - [Funcionalidades](#funcionalidades)
 
