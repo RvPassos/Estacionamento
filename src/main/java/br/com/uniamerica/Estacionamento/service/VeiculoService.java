@@ -37,6 +37,10 @@ public class VeiculoService {
 
         Assert.isTrue(this.veiculoRepository.findByPlaca(veiculo.getPlaca()).isEmpty(), "a placa ja existe");
 
+        Long atual = 2024L;
+
+        Assert.isTrue(veiculo.getAno() < atual, "Ano invalido para veiculo");
+
         this.veiculoRepository.save(veiculo);
     }
 

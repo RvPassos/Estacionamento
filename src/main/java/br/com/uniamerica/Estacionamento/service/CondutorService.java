@@ -25,10 +25,6 @@ public class CondutorService {
 
         Assert.isTrue(condutor.getCpf().matches(regexCpf), "Cpf invalido");
 
-        List<Condutor> contemcpf = this.condutorRepository.getByCpf(condutor.getCpf());
-
-        Assert.isTrue(contemcpf.isEmpty(), "Cpf ja existe");
-
         Assert.isTrue(condutor.getNome() != null, "Nome está nulo");
 
         String padrao = "\\+\\d{2}\\(\\d{3}\\)\\d{5}-\\d{4}";
@@ -36,10 +32,6 @@ public class CondutorService {
         Assert.isTrue(condutor.getTelefone().matches(padrao), "formato do telefone invalido");
 
         Assert.isTrue(condutor.getTelefone() != null, "Telefone está nulo");
-
-        Assert.isTrue(condutor.getTempoPago() != null, "Tempo pago invalido");
-
-        Assert.isTrue(condutor.getTempoDesconto() != null, "Tempo desconto invalido");
 
         Assert.isTrue(this.condutorRepository.getByTelefone(condutor.getTelefone()).isEmpty(), "o telefone ja existe");
 
@@ -57,10 +49,6 @@ public class CondutorService {
         Assert.isTrue(condutor.getNome() != null, "Nome está nulo");
 
         Assert.isTrue(condutor.getTelefone() != null, "Telefone está nulo");
-
-        Assert.isTrue(condutor.getTempoPago() != null, "Tempo pago está nulo");
-
-        Assert.isTrue(condutor.getTempoDesconto() != null, "Tempo desconto invalido");
 
         Assert.isTrue(this.condutorRepository.getByCpfPut(condutor.getCpf(), id).isEmpty(), "O cpf ja existe");
 
